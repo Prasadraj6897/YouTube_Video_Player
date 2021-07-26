@@ -1,28 +1,48 @@
+import React, { useState } from "react";
+import { Grid } from "@material-ui/core";
+import { SearchBar, VideoDetail, VideoList  } from "./VideoPlayerComponents";
+import youtube from "./api/youtube";
+
+
+const APP = (props) => {
+
+	const [videos, setVideos] = useState([]);
+	const [selectedVideo, setSelectedVideo] = useState({ id: {}, snippet: {} });
   
-import React from 'react';
-import { Typography, AppBar } from '@material-ui/core';
 
-import VideoPlayer from './components/VideoPlayer/videoPlayer';
-import SideBar from './components/Sidebar/sideBar';
-import Notifications from './components/Notifications/Notification';
+	const handleSubmit = async(searchTerm) =>{
+		const { data: { items: videos } } = await youtube.get("search", {
+			params: {
+			  part: "snippet",
+			  maxResults: 5,
+			  // TODO - add a new API key.
+			  key: "Api Key In google developers console ",
+			  q: searchTerm,
+			}
+		  });
+		  console.log(videos)
+		  setVideos(videos);
+		  setSelectedVideo(videos[0]);
+		
+	}
+  return(
+	<Grid style={{ justifyContent: "center" }} container spacing={10}>
+		<Grid item xs={11}>
+			<Grid container spacing={10}>
+				<Grid item xs={12}>
+					<SearchBar onSubmit={handleSubmit}/>
+				</Grid>
+				<Grid item xs={8}>
+					<VideoDetail  video={selectedVideo}/>
+				</Grid>
+				<Grid item xs={4}>
+					<VideoList videos={videos} onVideoSelect={setSelectedVideo} />
+				</Grid>
+			</Grid>
+		</Grid>
+	</Grid>
+   )
 
+ }
 
-import useStyles from './AppStyles';
-
-const App = () => {
-	const classes = useStyles();
-
-	return (
-		<div className={classes.wrapper}>
-			<AppBar className={classes.appBar} position="static" color="inherit">
-				<Typography variant="h2" align="center">Video Chat</Typography>
-			</AppBar>
-			<VideoPlayer />
-			<SideBar>
-				<Notifications />
-			</SideBar>
-		</div>
-	);
-}
-
-export default App;
+export default APP
